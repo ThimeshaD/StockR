@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stockroom · Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', '"SF Mono"', 'Consolas', 'monospace'],
+        },
+        colors: {
+          graphite: { DEFAULT: '#1C2128', 2: '#262C36', 3: '#323945' },
+          paper: '#F5F6F3',
+          surface: '#FFFFFF',
+          ink: '#23272F',
+          muted: '#6B7280',
+          border: '#E3E4DF',
+          teal: { DEFAULT: '#0E7C7B', dark: '#0A5F5E' },
+          amber: { DEFAULT: '#C97A0C', bg: '#FCF1DE' },
+          red: { DEFAULT: '#B3261E', bg: '#FBEAE9' },
+          green: { DEFAULT: '#2F7D5A', bg: '#E9F3ED' }
+        },
+        boxShadow: {
+          modal: '0 20px 50px rgba(20, 24, 30, 0.25)'
+        }
+      }
+    }
+  }
+</script>
+<style>
+  /* Base styles to prevent flash of unstyled content and keep some basic rules */
+  html, body { background-color: #F5F6F3; color: #23272F; font-family: "IBM Plex Sans", sans-serif; }
+  /* hide views by default */
+  .view { display: none; }
+  .view.active { display: block; }
+  
+  /* Tabs */
+  .tab-btn.active { color: #0E7C7B; border-bottom-color: #0E7C7B; }
+  
+  /* Active nav items */
+  .nav-item.active { background: #323945; color: #fff; font-weight: 600; }
+  .nav-item:hover:not(.active) { background: #262C36; color: #fff; }
+</style>
+</head>
+<body class="text-[14px] antialiased">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-[240px] bg-graphite shrink-0 flex flex-col justify-between text-white border-r border-graphite-3 shadow-[2px_0_12px_rgba(0,0,0,0.12)] z-10 p-[18px]">
+      <div>
+        <div class="font-bold text-[17px] tracking-wide mb-[32px] flex items-center pr-3">
+          <span class="text-teal mr-2">#</span> Stockroom
+        </div>
+        <nav class="flex flex-col gap-[6px]">
+          <button class="nav-item active flex items-center justify-between gap-2 px-3 py-2.5 rounded-md text-[#C7CBD1] cursor-pointer text-[13.5px] w-full text-left" data-view="dashboard">
+            <span>Dashboard</span>
+          </button>
+          
+          <div class="text-[11px] uppercase tracking-wider text-[#8A909B] font-semibold mt-4 mb-2 px-3">Devices</div>
+          
+          <button class="nav-item flex items-center justify-between gap-2 px-3 py-2.5 rounded-md text-[#C7CBD1] cursor-pointer text-[13.5px] w-full text-left" data-view="table_unit">
+            <span>Table Unit</span>
+            <span class="nav-badge zero bg-graphite-3 text-[#8A909B] font-bold rounded-full px-[7px] py-[1px] min-w-[18px] text-center text-[12px]" id="badgeTable">0</span>
+          </button>
+          <button class="nav-item flex items-center justify-between gap-2 px-3 py-2.5 rounded-md text-[#C7CBD1] cursor-pointer text-[13.5px] w-full text-left" data-view="counter_unit">
+            <span>Counter Unit</span>
+            <span class="nav-badge zero bg-graphite-3 text-[#8A909B] font-bold rounded-full px-[7px] py-[1px] min-w-[18px] text-center text-[12px]" id="badgeCounter">0</span>
+          </button>
+        </nav>
+      </div>
+      <div class="border-t border-graphite-3 pt-3.5 mt-3.5 text-[12.5px]">
+        <div class="text-white font-semibold mb-0.5" id="sidebarUser">—</div>
+        <div class="text-[#8A909B] capitalize mb-2.5" id="sidebarRole">—</div>
+        <button class="text-[#C7CBD1] hover:text-white underline cursor-pointer p-0 bg-transparent border-none text-[12.5px]" id="signOutBtn">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-10 relative">
+      <!-- Dashboard view -->
+      <section id="view-dashboard" class="view active">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-[26px] font-bold tracking-tight mb-1">Dashboard</h1>
+            <div class="text-[15px] text-muted">Overview of both devices.</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-[14px] mb-[26px]">
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Total items</div>
+            <div class="font-mono text-[28px] font-semibold" id="statTotal">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Total available</div>
+            <div class="font-mono text-[28px] font-semibold text-green" id="statAvailable">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Need to order</div>
+            <div class="font-mono text-[28px] font-semibold text-amber" id="statNeedOrder">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Total to order</div>
+            <div class="font-mono text-[28px] font-semibold text-red" id="statTotalOrder">0</div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 mb-5 border-b border-border">
+          <button class="tab-btn active bg-transparent border-none py-2 px-0 text-[14.5px] font-semibold text-muted cursor-pointer border-b-2 border-transparent -mb-[1px] hover:text-ink" data-dash-tab="table">Table Unit</button>
+          <button class="tab-btn bg-transparent border-none py-2 px-0 text-[14.5px] font-semibold text-muted cursor-pointer border-b-2 border-transparent -mb-[1px] hover:text-ink" data-dash-tab="counter">Counter Unit</button>
+        </div>
+
+        <!-- Table Unit summary -->
+        <div class="device-section" id="dashTabTable">
+          <div class="flex items-center justify-between mb-4 mt-8">
+            <h2 class="text-[17px] font-bold flex items-center gap-2">📋 Table Unit</h2>
+            <div class="text-[13px] text-muted flex gap-3">
+              <span><strong class="font-semibold text-ink" id="dashTableItems">0</strong> items</span>
+              <span class="text-amber"><strong class="font-semibold" id="dashTableOrder">0</strong> to order</span>
+            </div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Sub-category</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Item</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Qty / Device</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Available</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Devices</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">To order</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Link</th>
+                </tr>
+              </thead>
+              <tbody id="dashTableBody"></tbody>
+            </table>
+            <div id="dashTableEmpty" class="hidden p-10 text-center text-muted">
+              No items in Table Unit yet.
+            </div>
+          </div>
+        </div>
+
+        <!-- Counter Unit summary -->
+        <div class="device-section" id="dashTabCounter" style="display:none;">
+          <div class="flex items-center justify-between mb-4 mt-8">
+            <h2 class="text-[17px] font-bold flex items-center gap-2">🖥️ Counter Unit</h2>
+            <div class="text-[13px] text-muted flex gap-3">
+              <span><strong class="font-semibold text-ink" id="dashCounterItems">0</strong> items</span>
+              <span class="text-amber"><strong class="font-semibold" id="dashCounterOrder">0</strong> to order</span>
+            </div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Sub-category</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Item</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Qty / Device</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Available</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Devices</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">To order</th>
+                  <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Link</th>
+                </tr>
+              </thead>
+              <tbody id="dashCounterBody"></tbody>
+            </table>
+            <div id="dashCounterEmpty" class="hidden p-10 text-center text-muted">
+              No items in Counter Unit yet.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Table Unit view -->
+      <section id="view-table_unit" class="view" style="display:none;">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-[26px] font-bold tracking-tight mb-1">📋 Table Unit</h1>
+            <div class="text-[15px] text-muted">Components for the Table Unit device.</div>
+          </div>
+          <div class="flex gap-3">
+            <input type="text" class="px-3 py-[9px] text-[13.5px] border border-border rounded-md bg-surface w-[240px] focus:outline-none focus:border-teal" id="searchTable" placeholder="Search items…" />
+            <button class="border border-transparent rounded-md px-3.5 py-[9px] text-[13.5px] font-semibold cursor-pointer inline-flex items-center gap-1.5 bg-teal text-white hover:bg-teal-dark" data-add-category="table_unit">+ Add item</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-[14px] mb-[26px]">
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Items</div>
+            <div class="font-mono text-[28px] font-semibold" id="statTableItems">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Available</div>
+            <div class="font-mono text-[28px] font-semibold text-green" id="statTableAvailable">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">To order</div>
+            <div class="font-mono text-[28px] font-semibold text-red" id="statTableOrder">0</div>
+          </div>
+        </div>
+
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Sub-category</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Item</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Qty / Device</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Available</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Devices</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">To order</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Link</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]"></th>
+              </tr>
+            </thead>
+            <tbody id="tableUnitBody"></tbody>
+          </table>
+          <div id="tableUnitEmpty" class="hidden p-10 text-center text-muted">
+            <strong class="font-semibold block mb-1 text-ink">No items yet.</strong>
+            Add components for the Table Unit.
+          </div>
+        </div>
+      </section>
+
+      <!-- Counter Unit view -->
+      <section id="view-counter_unit" class="view" style="display:none;">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-[26px] font-bold tracking-tight mb-1">🖥️ Counter Unit</h1>
+            <div class="text-[15px] text-muted">Components for the Counter Unit device.</div>
+          </div>
+          <div class="flex gap-3">
+            <input type="text" class="px-3 py-[9px] text-[13.5px] border border-border rounded-md bg-surface w-[240px] focus:outline-none focus:border-teal" id="searchCounter" placeholder="Search items…" />
+            <button class="border border-transparent rounded-md px-3.5 py-[9px] text-[13.5px] font-semibold cursor-pointer inline-flex items-center gap-1.5 bg-teal text-white hover:bg-teal-dark" data-add-category="counter_unit">+ Add item</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-[14px] mb-[26px]">
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Items</div>
+            <div class="font-mono text-[28px] font-semibold" id="statCounterItems">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">Available</div>
+            <div class="font-mono text-[28px] font-semibold text-green" id="statCounterAvailable">0</div>
+          </div>
+          <div class="bg-surface border border-border rounded-[10px] p-[16px_18px]">
+            <div class="text-[12px] text-muted uppercase tracking-[0.04em] mb-1.5">To order</div>
+            <div class="font-mono text-[28px] font-semibold text-red" id="statCounterOrder">0</div>
+          </div>
+        </div>
+
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Sub-category</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Item</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Qty / Device</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Available</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Devices</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">To order</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]">Link</th>
+                <th class="text-left text-[11.5px] uppercase tracking-[0.04em] text-muted py-3 px-4 border-b border-border bg-[#FAFAF8]"></th>
+              </tr>
+            </thead>
+            <tbody id="counterUnitBody"></tbody>
+          </table>
+          <div id="counterUnitEmpty" class="hidden p-10 text-center text-muted">
+            <strong class="font-semibold block mb-1 text-ink">No items yet.</strong>
+            Add components for the Counter Unit.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add / Edit item modal -->
+  <div class="fixed inset-0 bg-graphite/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" id="itemModalOverlay">
+    <div class="bg-surface rounded-[12px] w-[540px] max-w-full shadow-modal overflow-hidden flex flex-col max-h-full">
+      <div class="px-6 py-5 border-b border-border flex items-center justify-between">
+        <h2 class="text-[19px] font-bold tracking-tight" id="itemModalTitle">Add item</h2>
+        <button class="bg-transparent border-none text-muted hover:text-ink cursor-pointer p-1 text-[18px]" data-close-modal="itemModalOverlay">✕</button>
+      </div>
+      <form id="itemForm" class="flex flex-col overflow-y-auto">
+        <div class="p-6">
+          <div id="itemFormError" class="bg-red-bg text-red p-3 rounded-md mb-5 text-[13.5px] hidden"></div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <label for="itemName" class="text-[13px] font-semibold">Item name</label>
+              <input id="itemName" required class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="itemCategory" class="text-[13px] font-semibold">Device</label>
+              <select id="itemCategory" required class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal">
+                <option value="table_unit">Table Unit</option>
+                <option value="counter_unit">Counter Unit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5 mb-4">
+            <label for="itemSubcategory" class="text-[13px] font-semibold">Sub-category</label>
+            <input id="itemSubcategory" placeholder="e.g. Electronics, Battery Pack" required class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <label for="itemQtyPerDevice" class="text-[13px] font-semibold">Qty per device</label>
+              <input id="itemQtyPerDevice" type="number" step="any" min="0" value="0" required class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="itemAvailability" class="text-[13px] font-semibold">Availability</label>
+              <input id="itemAvailability" type="number" step="any" min="0" value="0" required class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <label for="itemDevices" class="text-[13px] font-semibold">Devices</label>
+              <input id="itemDevices" type="number" step="1" min="0" value="0" required class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="itemLink" class="text-[13px] font-semibold">Link <span class="font-normal text-muted">(optional)</span></label>
+              <input id="itemLink" type="url" placeholder="https://…" class="px-3 py-2 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-[#FAFAF8] border-t border-border flex justify-end gap-3 mt-auto">
+          <button type="button" class="border rounded-md px-3.5 py-[9px] text-[13.5px] font-semibold cursor-pointer bg-surface border-border text-ink hover:bg-[#EFEFEC]" data-close-modal="itemModalOverlay">Cancel</button>
+          <button type="submit" class="border border-transparent rounded-md px-3.5 py-[9px] text-[13.5px] font-semibold cursor-pointer bg-teal text-white hover:bg-teal-dark" id="itemFormSubmit">Add item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm delete modal -->
+  <div class="fixed inset-0 bg-graphite/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" id="confirmModalOverlay">
+    <div class="bg-surface rounded-[12px] w-[400px] max-w-full shadow-modal overflow-hidden flex flex-col">
+      <div class="px-6 py-5 border-b border-border flex items-center justify-between">
+        <h2 class="text-[19px] font-bold tracking-tight">Remove item</h2>
+        <button class="bg-transparent border-none text-muted hover:text-ink cursor-pointer p-1 text-[18px]" data-close-modal="confirmModalOverlay">✕</button>
+      </div>
+      <div class="p-6">
+        <p id="confirmModalText" class="text-[14px]">Remove this item? This can't be undone.</p>
+      </div>
+      <div class="px-6 py-4 bg-[#FAFAF8] border-t border-border flex justify-end gap-3">
+        <button type="button" class="border rounded-md px-3.5 py-[9px] text-[13.5px] font-semibold cursor-pointer bg-surface border-border text-ink hover:bg-[#EFEFEC]" data-close-modal="confirmModalOverlay">Cancel</button>
+        <button type="button" class="border border-transparent rounded-md px-3.5 py-[9px] text-[13.5px] font-semibold cursor-pointer bg-surface border-red text-red hover:bg-red-bg" id="confirmDeleteBtn">Remove item</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed bottom-6 right-6 bg-graphite text-white px-5 py-3.5 rounded-lg text-[14px] font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[100] transform translate-y-[150%] transition-transform duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]" id="toast"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

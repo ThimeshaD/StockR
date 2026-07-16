@@ -1,0 +1,29 @@
+{
+  "name": "stockroom-inventory",
+  "version": "1.0.0",
+  "description": "Simple single-location inventory tracker with stock levels and low-stock alerts.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "concurrently \"nodemon server.js\" \"npm run dev --prefix client\"",
+    "reset-admin": "node scripts/reset-admin.js",
+    "setup-new-features": "node scripts/setup-new-features.js"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^173.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^9.0.3"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "nodemon": "^3.1.14"
+  }
+}

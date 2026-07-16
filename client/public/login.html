@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in · Stockroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', '"SF Mono"', 'Consolas', 'monospace'],
+        },
+        colors: {
+          graphite: { DEFAULT: '#1C2128', 2: '#262C36', 3: '#323945' },
+          paper: '#F5F6F3',
+          surface: '#FFFFFF',
+          ink: '#23272F',
+          muted: '#6B7280',
+          border: '#E3E4DF',
+          teal: { DEFAULT: '#0E7C7B', dark: '#0A5F5E' },
+          amber: { DEFAULT: '#C97A0C', bg: '#FCF1DE' },
+          red: { DEFAULT: '#B3261E', bg: '#FBEAE9' },
+          green: { DEFAULT: '#2F7D5A', bg: '#E9F3ED' }
+        },
+        boxShadow: { modal: '0 20px 50px rgba(20, 24, 30, 0.25)' }
+      }
+    }
+  }
+</script>
+<style>
+  html, body { background-color: #F5F6F3; color: #23272F; font-family: "IBM Plex Sans", sans-serif; }
+</style>
+</head>
+<body class="text-[14px] antialiased">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-surface border border-border rounded-[12px] w-[420px] max-w-[90%] p-8 shadow-modal text-center">
+      <div class="font-bold text-[24px] mb-2 flex items-center justify-center"><span class="text-teal mr-2">#</span> Stockroom</div>
+      <h1 class="text-[15.5px] font-medium text-muted mb-6">Sign in with your work email</h1>
+
+      <div id="loginError" class="bg-red-bg text-red p-3 rounded-md mb-5 text-[13.5px] text-left hidden"></div>
+      <div id="loginSuccess" class="bg-green-bg text-green p-4 rounded-md mb-5 text-[13.5px] text-left hidden"></div>
+
+      <form id="loginForm" class="flex flex-col gap-4 text-left">
+        <div class="flex flex-col gap-1.5">
+          <label for="email" class="text-[13px] font-semibold">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" autofocus required
+                 placeholder="you@attune-integrations.com"
+                 class="px-3 py-2.5 text-[13.5px] border border-border rounded-md bg-surface focus:outline-none focus:border-teal" />
+          <span class="text-[12px] text-muted">Only <strong class="text-ink">@attune-integrations.com</strong> addresses can sign in.</span>
+        </div>
+        <button id="submitBtn" type="submit"
+                class="border border-transparent rounded-md px-3.5 py-[11px] text-[13.5px] font-semibold cursor-pointer bg-teal text-white hover:bg-teal-dark mt-2 w-full flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+          Email me a sign-in link
+        </button>
+      </form>
+
+      <div class="text-[12px] text-muted mt-6">We'll send a secure link that signs you in — no password needed.</div>
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>
