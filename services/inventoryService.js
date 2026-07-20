@@ -4,8 +4,8 @@ const { getSettings } = require('./settingsService');
 // Sheet columns:
 // A id | B name | C description | D subcategory | E availability
 // F table_unit_qty | G counter_unit_qty | H link | I created_at
-// J updated_at | K restocked_date | L stock_location | M supplier | N pending_receive
-const SHEET_RANGE = 'UnifiedInventory!A2:N'; // A..N = 14 columns
+// J updated_at | K restocked_date | L stock_location | M supplier | N pending_receive | O unit
+const SHEET_RANGE = 'UnifiedInventory!A2:O'; // A..O = 15 columns
 
 // withCalc now takes the configurable targets. Falls back to 10/10 if omitted.
 function withCalc(item, targets = { table_unit_target: 10, counter_unit_target: 10 }) {
@@ -43,6 +43,7 @@ function rowToItem(row, rowIndex) {
     stock_location: row[11] || '',
     supplier: row[12] || '',
     pending_receive: Number(row[13]) || 0,
+    unit: row[14] || '',
     _rowIndex: rowIndex,
   };
 }
@@ -64,6 +65,7 @@ function itemToRow(item) {
     item.stock_location || '',
     item.supplier || '',
     item.pending_receive || 0,
+    item.unit || '',
   ];
 }
 

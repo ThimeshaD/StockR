@@ -1,0 +1,13 @@
+JWT_SECRET=697d3b60ac1bfb3179d23ceb0e4b30bd033100ef10d134c3ac37df43df7c058af371fb76a59831d4cafc2adfd7bfc049
+GOOGLE_SHEET_WEBAPP_URL=https://script.google.com/a/macros/attune-integrations.com/s/AKfycbzluH4cf4-eT6YwPiKcIoa2CoYksB9tzjKfpKONCyqSzG6zKg_I243hGFG7tJfRfmfJ/exec
+# ---- Magic-link login + email reports (Gmail SMTP) ----
+# Use a Gmail / Google Workspace account with an App Password
+# (Google Account → Security → 2-Step Verification → App passwords).
+SMTP_USER=bhagya@attune-integrations.com
+SMTP_PASS=uzgj hvvi yxjk mrcq
+# From address (defaults to SMTP_USER if omitted)
+SMTP_FROM=Stockroom <bhagya@attune-integrations.com>
+# Public base URL of the app — used to build magic-link URLs in emails.
+# Must match how users reach the app (e.g. https://stockroom.yourcompany.com)
+PORT=5174
+APP_URL=http://100.87.191.75:5174
