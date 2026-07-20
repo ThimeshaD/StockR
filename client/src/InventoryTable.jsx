@@ -8,9 +8,14 @@ function formatQty(n, blankZero = false) {
   return Number.isInteger(num) ? String(num) : num.toFixed(2).replace(/\.?0+$/, '');
 }
 
-function OrderBadge({ qtyToOrder }) {
+function OrderBadge({ qtyToOrder, unit }) {
   if (qtyToOrder > 0) {
-    return <span className="bg-amber-bg text-amber-700 px-2.5 py-1 rounded-md text-[12px] font-bold border border-amber/20 shadow-sm">{formatQty(qtyToOrder)}</span>;
+    return (
+      <span className="bg-amber-bg text-amber-700 px-2.5 py-1 rounded-md text-[12px] font-bold border border-amber/20 shadow-sm">
+        {formatQty(qtyToOrder)}
+        {unit && <span className="text-[10px] font-medium opacity-70 ml-1">{unit}</span>}
+      </span>
+    );
   }
   return <span className="bg-green-bg/60 text-green-700 px-2.5 py-1 rounded-md text-[12px] font-bold border border-green/10">None</span>;
 }
@@ -71,7 +76,7 @@ const rowVariants = {
 
 const TableSpacer = React.memo(({ showActions }) => (
   <tr className="bg-graphite/5">
-    <td colSpan={showActions ? "13" : "12"} style={{ height: '4px', padding: 0, border: 'none' }}></td>
+    <td colSpan={showActions ? "12" : "11"} style={{ height: '4px', padding: 0, border: 'none' }}></td>
   </tr>
 ));
 
@@ -82,19 +87,30 @@ const TableRow = React.memo(({ item, showActions, onEdit, onDelete, onHistory, o
       <div className="font-medium text-ink">{item.name}</div>
       {item.description && <div className="text-[11px] text-muted/70 mt-0.5 leading-tight">{item.description}</div>}
     </td>
-    <td className="py-3.5 px-3 border-b border-border/50 text-[12px] text-muted text-center font-medium">{item.unit || <span className="opacity-30">—</span>}</td>
-    <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center font-bold text-teal">{formatQty(item.availability)}</td>
+    <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center font-bold text-teal">
+      {formatQty(item.availability)}
+      {item.unit && <span className="text-[11px] font-sans font-medium text-teal/60 ml-1">{item.unit}</span>}
+    </td>
     <td className="py-3.5 px-3 border-b border-border/50 text-[12px] text-center">{formatDate(item.restocked_date)}</td>
 
-    <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center">{formatQty(item.table_unit_qty, true)}</td>
+    <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center">
+      {formatQty(item.table_unit_qty, true)}
+      {item.table_unit_qty > 0 && item.unit && <span className="text-[11px] font-sans text-muted/60 ml-1">{item.unit}</span>}
+    </td>
 
-    <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center">{formatQty(item.counter_unit_qty, true)}</td>
+    <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center">
+      {formatQty(item.counter_unit_qty, true)}
+      {item.counter_unit_qty > 0 && item.unit && <span className="text-[11px] font-sans text-muted/60 ml-1">{item.unit}</span>}
+    </td>
 
-    <td className="py-3.5 px-3 border-b border-border/50 text-center"><OrderBadge qtyToOrder={item.total_to_order} /></td>
+    <td className="py-3.5 px-3 border-b border-border/50 text-center"><OrderBadge qtyToOrder={item.total_to_order} unit={item.unit} /></td>
     <td className="py-3.5 px-3 border-b border-border/50 text-center">
       {item.pending_receive > 0 ? (
         <div className="flex flex-col items-center gap-1">
-          <span className="font-mono text-teal font-bold text-[13px]">{formatQty(item.pending_receive)}</span>
+          <span className="font-mono text-teal font-bold text-[13px]">
+            {formatQty(item.pending_receive)}
+            {item.unit && <span className="text-[10px] font-sans font-medium text-teal/60 ml-1">{item.unit}</span>}
+          </span>
           {showActions && (
             <button
               onClick={() => onReceive(item)}
@@ -192,7 +208,6 @@ export default function InventoryTable({ items, emptyMessage, onEdit, onDelete, 
           <tr>
             <th className="text-left text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Sub-category</th>
             <th className="text-left text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Item</th>
-            <th className="text-center text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Unit</th>
             <th className="text-center text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Available</th>
             <th className="text-center text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Restocked</th>
 
