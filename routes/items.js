@@ -50,6 +50,7 @@ router.get('/', async (req, res) => {
       const lowerSearch = search.toLowerCase();
       list = list.filter(item =>
         item.name.toLowerCase().includes(lowerSearch) ||
+        (item.description || '').toLowerCase().includes(lowerSearch) ||
         item.subcategory.toLowerCase().includes(lowerSearch) ||
         (item.supplier || '').toLowerCase().includes(lowerSearch) ||
         (item.stock_location || '').toLowerCase().includes(lowerSearch)

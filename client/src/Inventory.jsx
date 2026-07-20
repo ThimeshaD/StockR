@@ -80,6 +80,7 @@ export default function Inventory({ onAdd, onEdit, onDelete, onBuildDevice }) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(item =>
         (item.name && item.name.toLowerCase().includes(q)) ||
+        (item.description && item.description.toLowerCase().includes(q)) ||
         (item.subcategory && item.subcategory.toLowerCase().includes(q)) ||
         (item.supplier && item.supplier.toLowerCase().includes(q)) ||
         (item.stock_location && item.stock_location.toLowerCase().includes(q)) ||
@@ -176,7 +177,7 @@ export default function Inventory({ onAdd, onEdit, onDelete, onBuildDevice }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Search by name, sub-category, supplier or location...`}
+            placeholder={`Search by name, description, sub-category...`}
             className="w-full pl-11 pr-10 py-3 rounded-xl border border-border/60 bg-surface text-ink text-[14px] placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal/50 transition-all shadow-sm"
           />
           {searchQuery && (
