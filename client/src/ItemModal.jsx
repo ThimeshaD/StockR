@@ -35,7 +35,8 @@ export default function ItemModal({ isOpen, onClose, onSubmit, initialData, defa
     link: '',
     stock_location: '',
     supplier: '',
-    pending_receive: 0
+    pending_receive: 0,
+    unit: ''
   });
   const [error, setError] = useState('');
   const [subcategories, setSubcategories] = useState([]);
@@ -59,7 +60,8 @@ export default function ItemModal({ isOpen, onClose, onSubmit, initialData, defa
         link: '',
         stock_location: '',
         supplier: '',
-        pending_receive: 0
+        pending_receive: 0,
+        unit: ''
       });
       setOriginalAvailability(0);
     }
@@ -144,9 +146,15 @@ export default function ItemModal({ isOpen, onClose, onSubmit, initialData, defa
                 {error && <div className="bg-red-bg text-red p-3 rounded-md mb-5 text-[13.5px] block border border-red/20">{error}</div>}
 
                 <div className="mb-5">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[13px] font-semibold text-graphite">Item name</label>
-                    <input name="name" value={formData.name} onChange={handleChange} required className="px-3.5 py-2.5 text-[14px] border border-border/80 rounded-xl bg-surface focus:outline-none focus:border-teal focus:ring-4 focus:ring-teal/10 transition-all shadow-sm" />
+                  <div className="grid grid-cols-[2fr_1fr] gap-5">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[13px] font-semibold text-graphite">Item name</label>
+                      <input name="name" value={formData.name} onChange={handleChange} required className="px-3.5 py-2.5 text-[14px] border border-border/80 rounded-xl bg-surface focus:outline-none focus:border-teal focus:ring-4 focus:ring-teal/10 transition-all shadow-sm" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[13px] font-semibold text-graphite">Unit <span className="font-normal text-muted">(e.g. pcs)</span></label>
+                      <input name="unit" value={formData.unit} onChange={handleChange} placeholder="pcs, m..." className="px-3.5 py-2.5 text-[14px] border border-border/80 rounded-xl bg-surface focus:outline-none focus:border-teal focus:ring-4 focus:ring-teal/10 transition-all shadow-sm" />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1.5 mt-5">
                     <label className="text-[13px] font-semibold text-graphite">Description <span className="font-normal text-muted">(optional)</span></label>

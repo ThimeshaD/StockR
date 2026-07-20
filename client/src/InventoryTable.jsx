@@ -71,7 +71,7 @@ const rowVariants = {
 
 const TableSpacer = React.memo(({ showActions }) => (
   <tr className="bg-graphite/5">
-    <td colSpan={showActions ? "12" : "11"} style={{ height: '4px', padding: 0, border: 'none' }}></td>
+    <td colSpan={showActions ? "13" : "12"} style={{ height: '4px', padding: 0, border: 'none' }}></td>
   </tr>
 ));
 
@@ -82,6 +82,7 @@ const TableRow = React.memo(({ item, showActions, onEdit, onDelete, onHistory, o
       <div className="font-medium text-ink">{item.name}</div>
       {item.description && <div className="text-[11px] text-muted/70 mt-0.5 leading-tight">{item.description}</div>}
     </td>
+    <td className="py-3.5 px-3 border-b border-border/50 text-[12px] text-muted text-center font-medium">{item.unit || <span className="opacity-30">—</span>}</td>
     <td className="py-3.5 px-3 border-b border-border/50 text-[13.5px] font-mono text-center font-bold text-teal">{formatQty(item.availability)}</td>
     <td className="py-3.5 px-3 border-b border-border/50 text-[12px] text-center">{formatDate(item.restocked_date)}</td>
 
@@ -191,6 +192,7 @@ export default function InventoryTable({ items, emptyMessage, onEdit, onDelete, 
           <tr>
             <th className="text-left text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Sub-category</th>
             <th className="text-left text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Item</th>
+            <th className="text-center text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Unit</th>
             <th className="text-center text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Available</th>
             <th className="text-center text-[11px] font-bold uppercase tracking-[0.06em] text-muted py-3.5 px-3 border-b border-border/80 bg-surface">Restocked</th>
 

@@ -100,7 +100,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const {
     name, description, subcategory, table_unit_qty, counter_unit_qty,
-    availability, link, stock_location, supplier, pending_receive,
+    availability, link, stock_location, supplier, pending_receive, unit,
   } = req.body || {};
 
   if (!name) return res.status(400).json({ error: 'Name is required.' });
@@ -127,11 +127,12 @@ router.post('/', async (req, res) => {
       stock_location: (stock_location || '').trim(),
       supplier: (supplier || '').trim(),
       pending_receive: Number(pending_receive) || 0,
+      unit: (unit || '').trim(),
     };
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'UnifiedInventory!A:N',
+      range: 'UnifiedInventory!A:O',
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: [itemToRow(newItem)] },
     });
@@ -157,7 +158,7 @@ router.put('/:id', async (req, res) => {
   const {
     name, description, subcategory, table_unit_qty, counter_unit_qty,
     availability, link, stock_location, supplier, pending_receive,
-    is_restock_action, movement_reason,
+    is_restock_action, movement_reason, unit,
   } = req.body || {};
 
   if (!name) return res.status(400).json({ error: 'Name is required.' });
@@ -190,11 +191,12 @@ router.put('/:id', async (req, res) => {
       stock_location: stock_location !== undefined ? stock_location.trim() : item.stock_location,
       supplier: supplier !== undefined ? supplier.trim() : item.supplier,
       pending_receive: finalPending,
+      unit: unit !== undefined ? unit.trim() : item.unit,
     };
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `UnifiedInventory!A${item._rowIndex}:N${item._rowIndex}`,
+      range: `UnifiedInventory!A${item._rowIndex}:O${item._rowIndex}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: [itemToRow(updated)] },
     });
@@ -308,7 +310,7 @@ router.post('/build-device', async (req, res) => {
       const before = item.availability;
       const after = before - (qty * numDevices);
       const updated = { ...item, availability: after, updated_at: now };
-      data.push({ range: `UnifiedInventory!A${item._rowIndex}:N${item._rowIndex}`, values: [itemToRow(updated)] });
+      data.push({ range: `UnifiedInventory!A${item._rowIndex}:O${item._rowIndex}`, values: [itemToRow(updated)] });
       movementEntries.push({
         item_id: item.id, item_name: item.name, type: movements.TYPES.BUILD,
         before, after, reason: `Built ${numDevices} ${isTable ? 'Table' : 'Counter'} Unit(s)`, user: userLabel(req),
@@ -384,7 +386,7 @@ router.post('/undo-build-device', async (req, res) => {
       const before = item.availability;
       const after = before + (qty * numDevices);
       const updated = { ...item, availability: after, updated_at: now };
-      data.push({ range: `UnifiedInventory!A${item._rowIndex}:N${item._rowIndex}`, values: [itemToRow(updated)] });
+      data.push({ range: `UnifiedInventory!A${item._rowIndex}:O${item._rowIndex}`, values: [itemToRow(updated)] });
       movementEntries.push({
         item_id: item.id, item_name: item.name, type: movements.TYPES.BUILD_UNDO,
         before, after, reason: `Undo build of ${numDevices} ${isTable ? 'Table' : 'Counter'} Unit(s)`, user: userLabel(req),
